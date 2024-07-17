@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Tournaments{% endblock %}
+{% block content %}
+<style>
+    .tournament-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .tournament-box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 0 auto;
+        max-width: 600px;
+        background-color: #f9f9f9;
+    }
+
+    h3 {
+        margin-top: 0;
+    }
+
+    .tournament-box img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+<div class="container">
+    <h1 class="page-title">Tournaments</h1>
+    <a href="{{ url_for('create_tournament') }}" class="w3-button w3-blue" style="margin-right: 20px;">Create a Tournament</a>
+    {% for tournament, players, participating in tournaments %}
+    <div class="tournament-container">
+        <div class="tournament-box">
+            {% set id = tournament[8].split('=')[1] %}
+            <img src="https://img.youtube.com/vi/{{id}}/hqdefault.jpg" alt="Tournament Image">
+            <p><strong>Description:</strong> {{ tournament[4] }}</p>
+            <p><strong>ID:</strong> {{ tournament[0] }}</p>
+            <p><strong>Type:</strong> {{ tournament[1] }}</p>
+            <p><strong>Start:</strong> {{ tournament[2] }}</p>
+            <p><strong>Status:</strong> {{ tournament[3] }}</p>
+            <p><strong>End:</strong> {{ tournament[5] }}</p>
+            <p><strong>Game ID:</strong> {{ tournament[6] }}</p>
+            <p><strong>Platform:</strong> {{ tournament[7] }}</p>
+            <p><strong>Participants:</strong> {{ players | join(', ') }}</p>
+            <form action="{{ url_for('toggle_participation', tournament_id=tournament[0]) }}" method="POST">
+                {% if participating %}
+                    <button type="submit" class="btn btn-danger">Un-compete</button>
+                {% else %}
+                    <button type="submit" class="btn btn-success">Compete</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

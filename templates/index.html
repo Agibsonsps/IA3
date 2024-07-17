@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Artist Results{% endblock %}
+{% block content %}
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+
+    <h2>Upcoming Tournaments</h2>
+    {% for tournament, players, participating in tournaments_with_participation %}
+        <div>
+            <h3>{{ tournament[1] }}</h3>
+            <p>{{ tournament[2] }}</p>
+            <p>Participants: {{ players | join(', ') }}</p>
+            <form method="post" action="{{ url_for('toggle_participation', tournament_id=tournament[0]) }}">
+                {% if participating %}
+                    <button type="submit">Leave</button>
+                {% else %}
+                    <button type="submit">Join</button>
+                {% endif %}
+            </form>
+        </div>
+    {% endfor %}
+
+    <h2>Recently Released Games</h2>
+    {% if games %}
+        <ul>
+            {% for game in games %}
+                <li>
+                    <strong>{{ game.name }}</strong> (Released: {{ game.first_release_date | datetimeformat }})
+                    {% if game.cover %}
+                        <br><img src="{{ game.cover.url }}" alt="{{ game.name }} cover" width="100">
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recent games found.</p>
+    {% endif %}
+</body>
+{% endblock %}
+```

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+    <h1>Search Results for "{{ query }}"</h1>
+    {% if games %}
+        <ul>
+            {% for game_title, game_details in games.items() %}
+                <li>
+                    <h2>{{ game_title }}</h2>
+                    {% if game_details.trailer_link %}
+                        <a href="{{ game_details.trailer_link }}" target="_blank">
+                            <img src="{{ game_details.thumbnail_link }}" alt="YouTube thumbnail for {{ game_title }}">
+                        </a>
+                    {% endif %}
+                    <ul>
+                        <li><strong>Platform:</strong> {{ game_details.platform }}</li>
+                        <li><strong>Developer:</strong> {{ game_details.developer }}</li>
+                        <li><strong>Publisher:</strong> {{ game_details.publisher }}</li>
+                        <li><strong>Release Date:</strong> {{ game_details.release_date }}</li>
+                        <li><strong>Rating:</strong> {{ game_details.rating }}</li>
+                        {% if game_details.website %}
+                            <li><strong>Website:</strong> <a href="{{ game_details.website }}" target="_blank">{{ game_details.website }}</a></li>
+                        {% endif %}
+                    </ul>
+                    <form method="post" action="{{ url_for('toggle_favorite') }}">
+                        <input type="hidden" name="game_id" value="{{ game_details.id }}">
+                        <input type="hidden" name="query" value="{{ query }}">
+                        {% if game_details.id in favorite_games %}
+                            <input type="hidden" name="action" value="unfavorite">
+                            <button type="submit">Unfavorite</button>
+                        {% else %}
+                            <input type="hidden" name="action" value="favorite">
+                            <button type="submit">Favorite</button>
+                        {% endif %}
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No results found for "{{ query }}". Please try a different search.</p>
+    {% endif %}
+{% endblock %}
