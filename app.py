@@ -86,6 +86,7 @@ def search_games(query):
         return {}
 
 
+
 @app.template_filter('datetimeformat')
 def datetimeformat(value):
     return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d')
@@ -118,15 +119,35 @@ def toggle_favorite():
     action = request.form['action']
     query = request.form['query']
 
+    games = search_games(query)
+    game = games.get(query)
+
+    if not game:
+        flash('Game not found in API search.', 'danger')
+        return redirect(url_for('results', query=query))
+
+    game_name = query
+    platform = game['platform']
+    developer = game['developer']
+    publisher = game['publisher']
+    release_date = game['release_date']
+    rating = game['rating']
+    website = game['website']
+
     with sqlite3.connect('Esportsapp.db') as db:
         cursor = db.cursor()
         if action == "favorite":
-            cursor.execute('INSERT INTO fave_games (user_ID, game_ID) VALUES (?, ?)', (user_id, game_id))
+            cursor.execute('''
+                INSERT INTO fave_games (user_ID, game_ID, game_name, platform, developer, publisher, release_date, rating, website)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (user_id, game_id, game_name, platform, developer, publisher, release_date, rating, website))
         elif action == "unfavorite":
             cursor.execute('DELETE FROM fave_games WHERE user_ID = ? AND game_ID = ?', (user_id, game_id))
         db.commit()
 
     return redirect(url_for('results', query=query))
+
+
 
 
 @app.route('/')
@@ -238,6 +259,8 @@ def profile():
         cursor = db.cursor()
         cursor.execute('SELECT username, email, user_type, firstname, lastname FROM users WHERE user_ID = ?', (user_id,))
         user = cursor.fetchone()
+        cursor.execute('SELECT game_name, platform, developer, publisher, release_date, rating, website FROM fave_games WHERE user_ID = ?', (user_id,))
+        favorite_games = cursor.fetchall()
     if not user:
         return redirect(url_for('index'))
     username, email, user_type, firstname, lastname = user
@@ -249,7 +272,7 @@ def profile():
             db.commit()
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('profile'))
-    return render_template('profile.html', username=username, email=email, user_type=user_type, firstname=firstname, lastname=lastname)
+    return render_template('profile.html', username=username, email=email, user_type=user_type, firstname=firstname, lastname=lastname, favorite_games=favorite_games)
 
 
 if __name__ == '__main__':

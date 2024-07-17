@@ -76,9 +76,17 @@ cursor.execute('''
     (
         fave_game_ID INTEGER PRIMARY KEY AUTOINCREMENT,
         user_ID INTEGER,
-        game_ID INTEGER
+        game_ID INTEGER,
+        game_name TEXT,
+        platform TEXT,
+        developer TEXT,
+        publisher TEXT,
+        release_date INTEGER,
+        rating REAL,
+        website TEXT
     )
 ''')
+
 
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS fave_genre 

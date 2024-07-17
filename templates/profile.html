@@ -40,24 +40,30 @@
         text-decoration: underline;
     }
 </style>
-<body>
-    <div class="user-info">
-        <h1>Hello, {{ first_name }} {{ last_name }}!</h1>
-        <p><strong>Username:</strong> {{ username }}</p>
-        <p><strong>Email:</strong> {{ email }}</p>
-        <p><strong>User Type:</strong> {{ user_type }}</p>
-        <p><strong>User ID:</strong> {{ user_id }}</p>
-    </div>
 
-    <h2>Favourites:</h2>
-    <div class="favourite-games">
-        {% for game in favourite_games_data %}
-            <div class="game">
-                <a href="{{ game.trailer_link }}" target="_blank">{{ game.title }}</a>
-                {% set video_id = game.trailer_link.split('v=')[-1].split('&')[0] %}
-                <img src="https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg" alt="{{ game.title }} trailer thumbnail">
-            </div>
-        {% endfor %}
-    </div>
-</body>
+<div class="user-info">
+    <h1>Hello, {{ firstname }} {{ lastname }}!</h1>
+    <p><strong>Username:</strong> {{ username }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>User Type:</strong> {{ user_type }}</p>
+    <p><strong>User ID:</strong> {{ user_id }}</p>
+</div>
+
+<h2>Favourite Games:</h2>
+<div class="favourite-games">
+    {% for game in favorite_games %}
+        <div class="game">
+            <h3>{{ game[0] }}</h3>
+            <p><strong>Platform:</strong> {{ game[1] }}</p>
+            <p><strong>Developer:</strong> {{ game[2] }}</p>
+            <p><strong>Publisher:</strong> {{ game[3] }}</p>
+            <p><strong>Release Date:</strong> {{ game[4]|datetimeformat }}</p>
+            <p><strong>Rating:</strong> {{ game[5] }}</p>
+            {% if game[6] %}
+                <a href="{{ game[6] }}" target="_blank">Official Website</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
 {% endblock %}
