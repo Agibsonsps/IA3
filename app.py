@@ -1,3 +1,4 @@
+# This is my IA3 Project... I have added a new feature to the app that allows users to favorite games from the IGDB API search results.
 import openpyxl
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
