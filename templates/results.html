@@ -19,14 +19,23 @@
                         <li><strong>Developer:</strong> {{ game_details.developer }}</li>
                         <li><strong>Publisher:</strong> {{ game_details.publisher }}</li>
                         <li><strong>Release Date:</strong> {{ game_details.release_date }}</li>
+                        <li><strong>Game ID:</strong> {{ game_details.id }}</li>
                         <li><strong>Rating:</strong> {{ game_details.rating }}</li>
+                        <!-- pass through data of selected game into form of results then write to db --!>
                         {% if game_details.website %}
                             <li><strong>Website:</strong> <a href="{{ game_details.website }}" target="_blank">{{ game_details.website }}</a></li>
                         {% endif %}
                     </ul>
-                    <form method="post" action="{{ url_for('toggle_favorite') }}">
+                    <form method="post">
                         <input type="hidden" name="game_id" value="{{ game_details.id }}">
                         <input type="hidden" name="query" value="{{ query }}">
+                        <input type="hidden" name="game_title" value="{{ game_title }}">
+                        <input type="hidden" name="platform" value="{{ game_details.platform }}">
+                        <input type="hidden" name="developer" value="{{ game_details.developer }}">
+                        <input type="hidden" name="publisher" value="{{ game_details.publisher }}">
+                        <input type="hidden" name="release_date" value="{{ game_details.release_date }}">
+                        <input type="hidden" name="rating" value="{{ game_details.rating }}">
+                        <input type="hidden" name="website" value="{{ game_details.website }}">
                         {% if game_details.id in favorite_games %}
                             <input type="hidden" name="action" value="unfavorite">
                             <button type="submit">Unfavorite</button>

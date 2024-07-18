@@ -51,7 +51,7 @@ warnings.simplefilter('ignore', InsecureRequestWarning)
 
 def search_games(query):
     url = 'https://api.igdb.com/v4/games'
-    fields = 'name, platforms.name, involved_companies.company.name, first_release_date, rating, websites.url'
+    fields = 'name, platforms.name, involved_companies.company.name, first_release_date, rating, websites.url, id'
     data = f'''
         fields {fields};
         search "{query}";
@@ -76,7 +76,8 @@ def search_games(query):
             'publisher': publisher,
             'release_date': game.get('first_release_date', 'Unknown'),
             'rating': game.get('rating', 'Unknown'),
-            'website': game.get('websites', [{'url': None}])[0].get('url')
+            'website': game.get('websites', [{'url': None}])[0].get('url'),
+            'id': game.get('id', 'Unknown')
         }
         games_dict[game_title] = game_details
         print(games_dict)
@@ -109,7 +110,8 @@ def toggle_participation(tournament_id):
 
 
 # Add this new route to handle toggling favorite games
-@app.route('/toggle_favorite', methods=['POST'])
+ #DONT USE THIS ROUTE ANY MORE AS YOU CAN JUST USE THE RESULTS ROUTE WITH
+# THE FORM ACTION AND TOGGLE FAVOURITE FUNCTION
 def toggle_favorite():
     if "user" not in session:
         return redirect(url_for('login'))
@@ -117,7 +119,7 @@ def toggle_favorite():
     game_id = request.form['game_id']
     action = request.form['action']
     query = request.form['query']
-
+    print("action:", action, "game_id:", game_id,"query:", query, "user_id:", user_id)
     games = search_games(query)
     game = games.get(query)
 
@@ -145,8 +147,6 @@ def toggle_favorite():
         db.commit()
 
     return redirect(url_for('results', query=query))
-
-
 
 
 @app.route('/')
@@ -202,6 +202,7 @@ def register():
             flash('Username already exists!', 'danger')
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -241,7 +242,40 @@ def results():
         return redirect(url_for('login'))
     user_id = session['user']
     query = request.args.get('query')
+    #NEED TO PULL GAME DATA FROM RESULTS PAGE
     gameresults = search_games(query)
+
+    if request.method == 'POST':
+        game_id = request.form['game_id']
+        action = request.form['action']
+        print("action:", action, "game_id:", game_id, "query:", query, "user_id:", user_id)
+        games = search_games(query)
+        game = games.get(query)
+
+        if not game:
+            flash('Game not found in API search.', 'danger')
+            return redirect(url_for('results', query=query))
+
+        game_name = query
+        platform = game['platform']
+        developer = game['developer']
+        publisher = game['publisher']
+        release_date = game['release_date']
+        rating = game['rating']
+        website = game['website']
+
+        with sqlite3.connect('Esportsapp.db') as db:
+            cursor = db.cursor()
+            if action == "favorite":
+                cursor.execute('''
+                    INSERT INTO fave_games (user_ID, game_ID, game_name, platform, developer, publisher, release_date, rating, website)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (user_id, game_id, game_name, platform, developer, publisher, release_date, rating, website))
+            elif action == "unfavorite":
+                cursor.execute('DELETE FROM fave_games WHERE user_ID = ? AND game_ID = ?', (user_id, game_id))
+            db.commit()
+
+        return redirect(url_for('results', query=query))
     with sqlite3.connect('Esportsapp.db') as db:
         cursor = db.cursor()
         cursor.execute('SELECT game_ID FROM fave_games WHERE user_ID = ?', (user_id,))
