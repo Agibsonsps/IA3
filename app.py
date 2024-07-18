@@ -58,34 +58,32 @@ def search_games(query):
         limit 10;
     '''
     response = requests.post(url, headers=HEADERS, data=data, verify=False)
-    if response.status_code == 200:
-        games = response.json()
-        games_dict = {}
-        for game in games:
-            game_title = game.get('name', 'Unknown')
-            involved_companies = game.get('involved_companies', [])
-            developer = 'Unknown'
-            publisher = 'Unknown'
-            for company in involved_companies:
-                if company.get('developer'):
-                    developer = company['company']['name']
-                if company.get('publisher'):
-                    publisher = company['company']['name']
-            game_details = {
-                'platform': game.get('platforms', [{'name': 'Unknown'}])[0].get('name'),
-                'developer': developer,
-                'publisher': publisher,
-                'release_date': game.get('first_release_date', 'Unknown'),
-                'rating': game.get('rating', 'Unknown'),
-                'website': game.get('websites', [{'url': None}])[0].get('url')
-            }
-            games_dict[game_title] = game_details
-            print(games_dict)
+    games = response.json()
+    games_dict = {}
+    for game in games:
+        game_title = game.get('name', 'Unknown')
+        involved_companies = game.get('involved_companies', [])
+        developer = 'Unknown'
+        publisher = 'Unknown'
+        for company in involved_companies:
+            if company.get('developer'):
+                developer = company['company']['name']
+            if company.get('publisher'):
+                publisher = company['company']['name']
+        game_details = {
+            'platform': game.get('platforms', [{'name': 'Unknown'}])[0].get('name'),
+            'developer': developer,
+            'publisher': publisher,
+            'release_date': game.get('first_release_date', 'Unknown'),
+            'rating': game.get('rating', 'Unknown'),
+            'website': game.get('websites', [{'url': None}])[0].get('url')
+        }
+        games_dict[game_title] = game_details
+        print(games_dict)
         return games_dict
     else:
         print(f"Error searching games: {response.status_code}, {response.text}")
         return {}
-
 
 
 @app.template_filter('datetimeformat')
