@@ -21,12 +21,11 @@
                         <li><strong>Release Date:</strong> {{ game_details.release_date }}</li>
                         <li><strong>Game ID:</strong> {{ game_details.id }}</li>
                         <li><strong>Rating:</strong> {{ game_details.rating }}</li>
-                        <!-- pass through data of selected game into form of results then write to db --!>
                         {% if game_details.website %}
                             <li><strong>Website:</strong> <a href="{{ game_details.website }}" target="_blank">{{ game_details.website }}</a></li>
                         {% endif %}
                     </ul>
-                    <form method="post">
+                    <form method='POST'>
                         <input type="hidden" name="game_id" value="{{ game_details.id }}">
                         <input type="hidden" name="query" value="{{ query }}">
                         <input type="hidden" name="game_title" value="{{ game_title }}">

@@ -232,7 +232,6 @@ def search():
         query = request.form.get('query')
         games = search_games(query)
         return render_template('results.html', query=query, games=games)
-
     return render_template('search.html')
 
 
@@ -242,10 +241,8 @@ def results():
         return redirect(url_for('login'))
     user_id = session['user']
     query = request.args.get('query')
-    #NEED TO PULL GAME DATA FROM RESULTS PAGE
-    gameresults = search_games(query)
-
     if request.method == 'POST':
+        print('post request from results page')
         game_id = request.form['game_id']
         action = request.form['action']
         print("action:", action, "game_id:", game_id, "query:", query, "user_id:", user_id)
@@ -263,6 +260,7 @@ def results():
         release_date = game['release_date']
         rating = game['rating']
         website = game['website']
+        print("game details:", game_name, platform, developer, publisher, release_date, rating, website)
 
         with sqlite3.connect('Esportsapp.db') as db:
             cursor = db.cursor()
@@ -274,13 +272,14 @@ def results():
             elif action == "unfavorite":
                 cursor.execute('DELETE FROM fave_games WHERE user_ID = ? AND game_ID = ?', (user_id, game_id))
             db.commit()
+            print("fav game added")
 
         return redirect(url_for('results', query=query))
     with sqlite3.connect('Esportsapp.db') as db:
         cursor = db.cursor()
         cursor.execute('SELECT game_ID FROM fave_games WHERE user_ID = ?', (user_id,))
         favorite_games = [row[0] for row in cursor.fetchall()]
-    return render_template('results.html', query=query, gameresults=gameresults, favorite_games=favorite_games)
+    return render_template('results.html', query=query, favorite_games=favorite_games)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
